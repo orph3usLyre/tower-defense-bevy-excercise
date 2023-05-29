@@ -3097,7 +3097,9 @@ dependencies = [
  "bevy_egui",
  "crossbeam-channel",
  "hexx",
+ "nom",
  "rand",
+ "tracing",
 ]
 
 [[package]]
