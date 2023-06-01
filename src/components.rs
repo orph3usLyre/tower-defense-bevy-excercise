@@ -1,38 +1,62 @@
-use bevy::prelude::Component;
+use crate::utils::*;
+use bevy::{prelude::Component, time::Timer};
 use hexx::Hex;
+use serde::{Deserialize, Serialize};
+
+// Camera
+#[derive(Debug, Component)]
+pub struct TDCamera;
+
+// Board
+#[derive(Debug, Component)]
+pub struct Budget(pub u32);
 
 #[derive(Debug, Component)]
 pub struct TDBoard;
 
 #[derive(Debug, Component)]
-pub struct OnPath;
+pub struct TDTimers {
+    pub enemy_spawn_rate: Timer,
+    pub tower_damaging_rate: Timer,
+}
+
+// Tiles
+#[derive(Debug, Component)]
+pub struct Coords(pub Hex);
 
 #[derive(Debug, Component)]
-pub struct TDState {
-    pub restart: bool,
-    pub recalculate_enemy_paths: bool,
-}
+pub struct HasTower;
 
 #[derive(Debug, Component)]
 pub struct IsGoal;
 
 #[derive(Debug, Component)]
-pub struct IsCursorTarget;
-
-#[derive(Debug, Component)]
 pub struct IsSpawn;
 
 #[derive(Debug, Component)]
-pub struct CursorTarget;
+pub struct OnPath;
 
 #[derive(Debug, Component)]
-pub struct Coords(pub Hex);
+pub struct Refresh;
+
+#[derive(Debug, Component)]
+pub struct Damaging {
+    pub value: u32,
+}
+
+#[derive(Debug, Component)]
+pub struct DamagingBase;
+
+#[derive(Debug, PartialEq, Eq, Hash, Component)]
+pub struct Tile {
+    pub tile_type: TileType,
+    pub is_cursor: bool,
+}
 
 #[derive(Debug, PartialEq, Eq, Hash, Component)]
 pub enum TileType {
     Plains,
     Mountain,
-    Goal,
 }
 
 impl TileType {
@@ -40,27 +64,31 @@ impl TileType {
         match self {
             TileType::Plains => MaterialType::Plains,
             TileType::Mountain => MaterialType::Mountain,
-            TileType::Goal => MaterialType::Goal,
         }
     }
 }
 
+// Enemies
 #[derive(Debug, Component)]
 pub struct Enemy {
     pub health: u32,
+    pub value: u32,
 }
 #[derive(Debug, Component)]
 pub struct Moves {
-    pub path_index: usize,
+    pub path_index: (usize, usize),
     pub lerp: f32,
+    pub speed: f32,
 }
 
+// Towers
 #[derive(Debug, Component)]
 pub struct Tower {
     pub tower_type: TowerType,
+    pub cost: u32,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Hash, Copy, Clone)]
+#[derive(Debug, Default, PartialEq, Eq, Hash, Copy, Clone, Serialize, Deserialize)]
 pub enum TowerType {
     #[default]
     Small,
@@ -81,48 +109,6 @@ impl TowerType {
             TowerType::Small => 1,
             TowerType::Medium => 2,
             TowerType::Large => 3,
-        }
-    }
-}
-
-#[derive(Debug, Component)]
-pub struct Damaging {
-    pub value: u32,
-}
-#[derive(Debug, Component)]
-pub struct DamagingBase;
-
-// helpers
-#[derive(Debug, PartialEq, Eq, Hash)]
-pub enum MaterialType {
-    Plains,
-    Mountain,
-    Path,
-    Goal,
-    Spawn,
-    Target,
-    Enemy,
-}
-
-#[derive(Debug, PartialEq, Eq, Hash)]
-pub enum MeshType {
-    Hex,
-    Enemy,
-    Tower,
-}
-#[derive(Debug, PartialEq, Eq, Hash)]
-pub enum DamageLevel {
-    Low,
-    Medium,
-    High,
-}
-
-impl DamageLevel {
-    pub fn get_level(damage: u32) -> Self {
-        match damage {
-            0..=3 => Self::Low,
-            4..=7 => Self::Medium,
-            _ => Self::High,
         }
     }
 }

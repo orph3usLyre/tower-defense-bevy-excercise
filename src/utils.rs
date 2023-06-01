@@ -14,6 +14,37 @@ pub fn hexagonal_plane(hex_layout: &HexLayout) -> Mesh {
     mesh.set_indices(Some(Indices::U16(mesh_info.indices)));
     mesh
 }
-pub fn destroy_board(commands: &mut Commands, board_entity: Entity) {
-    commands.entity(board_entity).despawn_recursive();
+
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub enum MaterialType {
+    Plains,
+    Mountain,
+    Path,
+    Goal,
+    Spawn,
+    Target,
+    Enemy,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub enum MeshType {
+    Hex,
+    Enemy,
+    Tower,
+}
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub enum DamageLevel {
+    Low,
+    Medium,
+    High,
+}
+
+impl DamageLevel {
+    pub fn get_level(damage: u32) -> Self {
+        match damage {
+            0..=3 => Self::Low,
+            4..=7 => Self::Medium,
+            _ => Self::High,
+        }
+    }
 }
