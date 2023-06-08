@@ -9,12 +9,12 @@ use tracing::{event, Level};
 // Input interaction
 #[allow(clippy::too_many_arguments)]
 pub fn handle_input(
+    mut current: Local<Hex>,
     windows: Query<&Window, With<PrimaryWindow>>,
     camera_q: Query<(&Camera, &GlobalTransform), With<TDCamera>>,
     mut tiles: Query<(Option<&OnPath>, Option<&IsGoal>, Option<&HasTower>)>,
     mut cursor: Query<&mut Tile>,
-    mut current: Local<Hex>,
-    grid: ResMut<HexGrid>,
+    grid: Query<&mut HexGrid>,
     buttons: Res<Input<MouseButton>>,
     selected_tower: Res<SelectedTower>,
     mut tower_create: EventWriter<CreateTower>,
@@ -23,6 +23,7 @@ pub fn handle_input(
 ) {
     let window = windows.single();
     let (camera, camera_transform) = camera_q.single();
+    let grid = grid.single();
     // get normalized cursor position based on camera viewport
     if let Some(pos) = window
         .cursor_position()
@@ -96,10 +97,8 @@ pub fn camera_zoom(
     }
     let mut projection = camera_projection.single_mut();
     let mut log_scale = projection.scale.ln();
-    // log_scale -= 0.1 * time.delta_seconds() * config.0.zoom_speed * delta_zoom;
     log_scale -= time.delta_seconds() * config.0.zoom_speed * delta_zoom;
     log_scale = log_scale.exp();
     projection.scale = log_scale.clamp(-50., 50.);
-
     event!(Level::DEBUG, "Current zoom scale: {}", projection.scale);
 }

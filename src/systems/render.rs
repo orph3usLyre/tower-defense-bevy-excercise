@@ -1,8 +1,4 @@
-use crate::{
-    components::*,
-    resources::{HexGrid, TileVisuals},
-    utils::*,
-};
+use crate::{components::*, resources::TileVisuals, utils::*};
 use bevy::prelude::*;
 use tracing::{event, Level};
 
@@ -20,16 +16,11 @@ pub fn render_tiles(
             Option<&IsGoal>,
             Option<&OnPath>,
         ),
-        Or<(
-            Changed<Tile>,
-            Added<Tile>,
-            Added<OnPath>,
-            Added<Refresh>,
-            Changed<Refresh>,
-        )>,
+        Or<(Changed<Tile>, Changed<OnPath>, Changed<Refresh>)>,
     >,
-    grid: Res<HexGrid>,
+    grid: Query<&HexGrid>,
 ) {
+    let grid = grid.single();
     for (entity, tile, coords, has_transform, is_spawn, is_goal, on_path) in tiles.iter() {
         let material_type = match (
             tile.is_cursor,
@@ -44,10 +35,18 @@ pub fn render_tiles(
             _ => tile.tile_type.material_type(),
         };
         let material = tile_visuals.materials.get(&material_type).unwrap().clone();
+        // TODO: check if `none` then always material
         if has_transform.is_some() {
             // then tile just needs a material change
             if let Some(mut entity_commands) = commands.get_entity(entity) {
                 entity_commands.insert(material);
+
+                event!(
+                    Level::DEBUG,
+                    "Rendered {:?} as {:?}",
+                    coords.0,
+                    material_type
+                );
             }
             // Tile hasn't been given the 2d bundle
         } else {
@@ -73,33 +72,24 @@ pub fn render_tiles(
     }
 }
 
+// renders damage aoe
+// TODO: Move this into `render_tiles` and simplify
 pub fn render_tower_aoe(
     mut commands: Commands,
     tiles: Query<
-        (Entity, &Damaging, Option<&Children>),
-        (With<OnPath>, Or<(Changed<Damaging>, Added<Damaging>)>),
+        (Entity, &Coords, &Damaging, Option<&Children>),
+        (With<OnPath>, Changed<Damaging>),
     >,
     damaging_base: Query<Entity, With<DamagingBase>>,
     tile_visuals: Res<TileVisuals>,
 ) {
-    for (entity, damaging, children) in tiles.iter() {
-        if let Some(children) = children {
-            for child in children.iter() {
-                if let Ok(child) = damaging_base.get(*child) {
-                    event!(Level::INFO, "Updating visual on existing aoe");
-                    commands.entity(child).insert(
-                        tile_visuals
-                            .damaging_materials
-                            .get(&DamageLevel::get_level(damaging.value))
-                            .unwrap()
-                            .clone(),
-                    );
-                }
-            }
-        } else {
+    for (entity, coords, damaging, children) in tiles.iter() {
+        event!(Level::DEBUG, "Render tower aoe received hex {:?}", coords.0);
+        if children.is_none() || children.is_some_and(|c| c.is_empty()) {
             event!(
-                Level::INFO,
-                "Inserting visual component for childless damaging tile"
+                Level::DEBUG,
+                "Inserting visual component for childless damaging tile at hex: {:?}",
+                coords.0
             );
             commands
                 .spawn((
@@ -121,6 +111,24 @@ pub fn render_tower_aoe(
                     },
                 ))
                 .set_parent(entity);
+        }
+        if let Some(children) = children {
+            for child in children.iter() {
+                if let Ok(child) = damaging_base.get(*child) {
+                    event!(
+                        Level::DEBUG,
+                        "Updating visual on existing aoe at hex {:?}",
+                        coords.0
+                    );
+                    commands.entity(child).insert(
+                        tile_visuals
+                            .damaging_materials
+                            .get(&DamageLevel::get_level(damaging.value))
+                            .unwrap()
+                            .clone(),
+                    );
+                }
+            }
         }
     }
 }

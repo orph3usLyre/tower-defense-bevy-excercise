@@ -1,17 +1,33 @@
-
 map_radius: 20
 hex_size:
 - 10.0
 - 10.0
-enemy_speed: 5.0
 seed: null
 zoom_speed: 1.0
 starting_budget: 50
 tower_config:
-  small_tower_cost: 8
-  medium_tower_cost: 20
-  large_tower_cost: 50
-  tower_damaging_rate: 0.3
+  tower_type:
+    Small:
+      cost: 8
+      scale: 0.8
+    Medium:
+      cost: 20
+      scale: 1.0
+    Large:
+      cost: 50
+      scale: 1.5
+  damaging_rate: 0.5
+  tower_damage_alpha: 0.7
 enemy_config:
-  enemy_spawn_rate: 0.2
-
+  enemy_spawn_rate: 0.01
+  base_speed: 1.0
+  base_health: 10
+  base_value: 5
+  min_max_scale:
+  - 0.4
+  - 1.0
+  min_max_health:
+  - 5
+  - 20
+game_length: 60.0
+game_over_timer_length: 5.0

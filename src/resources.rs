@@ -1,26 +1,15 @@
-use std::collections::HashMap;
-
 use crate::utils::*;
+use crate::{communication::TDCommand, components::*, config::GameConfig};
 use bevy::prelude::*;
 use crossbeam_channel::Receiver;
-use hexx::{Hex, HexLayout};
 use rand::rngs::StdRng;
-
-use crate::{communication::TDCommand, components::*, config::GameConfig};
+use std::collections::HashMap;
 
 // Resources
-#[derive(Debug, Resource)]
-pub struct HexGrid {
-    pub entities: HashMap<Hex, Entity>,
-    pub paths: Option<HashMap<usize, Vec<Hex>>>,
-    pub spawn_points: Vec<Hex>,
-    pub layout: HexLayout,
-}
-
 // #[derive(Debug, Resource)]
-// pub struct TDTimers {
-//     pub enemy_spawn_rate: Timer,
-//     pub tower_damaging_rate: Timer,
+// pub struct HexGrid {
+//     pub entities: HashMap<Hex, Entity>,
+//     pub layout: HexLayout,
 // }
 
 #[derive(Debug, Resource)]
@@ -49,11 +38,6 @@ pub struct TDRng(pub StdRng);
 
 #[derive(Debug, Resource)]
 pub struct GameCommandChannel(pub Receiver<TDCommand>);
-
-#[derive(Debug, Resource, Default)]
-pub struct ScoreBoard {
-    pub score: i32,
-}
 
 #[derive(Debug, Resource, Default)]
 pub struct SelectedTower {

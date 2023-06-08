@@ -4,11 +4,11 @@ use tower_defense_bevy_excercise::{parse_command, setup_tower_defense, TDCommand
 use tracing::{event, span, Level};
 
 fn main() {
+    // setup app and sender
     let (mut app, tx) = setup_tower_defense();
-
-    let _command_channel_handle = thread::spawn(move || {
-        command_receive_loop(tx);
-    });
+    // spawn thread with command receive loop
+    let _command_channel_handle = thread::spawn(move || command_receive_loop(tx));
+    // run app
     app.run();
     _command_channel_handle.join().unwrap();
 }

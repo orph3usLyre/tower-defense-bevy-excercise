@@ -1,16 +1,21 @@
-use hexx::Hex;
-
 use crate::components::TowerType;
+use hexx::Hex;
 
 #[derive(Debug, Copy, Clone)]
 pub struct CreateTower {
     pub tower_type: TowerType,
     pub hex_pos: Hex,
 }
+
+#[derive(Debug)]
+pub struct GameOver;
+
 #[derive(Debug, Copy, Clone)]
 pub struct ToggleTile {
     pub hex_pos: Hex,
 }
+#[derive(Debug)]
+pub struct RefreshTowerDamage;
 
 #[derive(Debug)]
 pub struct Restart;
