@@ -117,6 +117,7 @@ pub fn handle_enemy_movement(
     }
 }
 
+// TODO: parallelize
 pub fn recalculate_enemy_path(
     mut commands: Commands,
     tiles: Query<(&Tile, Option<&HasTower>)>,

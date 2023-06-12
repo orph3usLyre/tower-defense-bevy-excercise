@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use tracing::{event, Level};
 
 // Renders all tiles
+// TODO: move default bundle setup to setup_tiles_and_board
 pub fn render_tiles(
     mut commands: Commands,
     tile_visuals: Res<TileVisuals>,

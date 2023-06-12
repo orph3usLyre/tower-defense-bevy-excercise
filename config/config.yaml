@@ -1,4 +1,4 @@
-map_radius: 20
+map_radius: 30
 hex_size:
 - 10.0
 - 10.0
@@ -21,13 +21,8 @@ tower_config:
 enemy_config:
   enemy_spawn_rate: 0.01
   base_speed: 1.0
-  base_health: 10
-  base_value: 5
-  min_max_scale:
-  - 0.4
-  - 1.0
   min_max_health:
   - 5
   - 20
-game_length: 60.0
+game_length: 300.0
 game_over_timer_length: 5.0
